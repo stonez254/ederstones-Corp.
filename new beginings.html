@@ -1,0 +1,913 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Moving Ribbon</title>
+<style>
+  /* Ribbon container fixed at bottom */
+  #ederstones-ribbon {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(60deg,white,black,maroon);
+    overflow: hidden;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    color: maroon;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    user-select: none;
+    z-index: 9999;
+  }
+
+  /* Inner scrolling text wrapper */
+  #ederstones-ribbon .scrolling-text {
+    white-space: nowrap;
+    display: inline-block;
+    will-change: transform;
+    animation: scroll-left 10s linear infinite;
+  }
+
+  /* Scroll animation: from 100% right to fully left */
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="ederstones-ribbon">
+  <div class="scrolling-text">ederstones Corp. &nbsp; &nbsp; ederstones Corp. &nbsp; &nbsp; ederstones Corp. &nbsp; &nbsp; ederstones Corp. &nbsp; &nbsp; ederstones Corp. &nbsp; &nbsp;</div>
+</div>
+
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ederstones Corp</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(60deg, white, black, maroon);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .top-nav {
+      display: flex;
+      gap: 10px;
+      margin: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background: black;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: maroon;
+    }
+
+    .section {
+      display: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 20px;
+      width: 90%;
+      max-height: 80vh;
+      overflow: auto;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .section.active {
+      display: flex;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 15px;
+      width: 250px;
+      box-shadow: 0 0 10px black;
+    }
+
+    .card h2 {
+      margin-bottom: 10px;
+      font-size: 18px;
+      border-bottom: 1px solid maroon;
+      padding-bottom: 5px;
+    }
+
+    .card a {
+      display: block;
+      background: white;
+      color: black;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 8px;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .card a:hover {
+      background: maroon;
+      color: white;
+    }
+
+    #search {
+      width: 100%;
+      max-width: 500px;
+      padding: 10px;
+      margin: 20px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-nav">
+    <button onclick="showSection('hub')">Hub</button>
+    <button onclick="showSection('dictionary')">Dictionary/extras</button>
+  </div>
+
+  <div id="hub" class="section active">
+    <div class="card">
+      <h2>AI Tools</h2>
+      <a href="https://chat.openai.com" target="_blank">ChatGPT</a>
+      <a href="https://gemini.google.com" target="_blank">Gemini</a>
+      <a href="https://claude.ai" target="_blank">Claude</a>
+      <a href="https://www.perplexity.ai" target="_blank">Perplexity</a>
+    </div>
+    <div class="card">
+      <h2>News Apps</h2>
+      <a href="https://www.bbc.com/news" target="_blank">BBC News</a>
+      <a href="https://edition.cnn.com" target="_blank">CNN</a>
+      <a href="https://www.aljazeera.com" target="_blank">Al Jazeera</a>
+      <a href="https://nation.africa/kenya" target="_blank">Nation</a>
+    </div>
+    <div class="card">
+      <h2>College Apps</h2>
+      <a href="https://moodle.org" target="_blank">Moodle</a>
+      <a href="https://zoom.us" target="_blank">Zoom</a>
+      <a href="https://meet.google.com" target="_blank">Google Meet</a>
+      <a href="https://www.turnitin.com" target="_blank">Turnitin</a>
+    </div>
+    <div class="card">
+      <h2>Offline PC Games</h2>
+      <a href="#">GTA San Andreas</a>
+      <a href="#">NFS Most Wanted</a>
+      <a href="#">PES 2013</a>
+      <a href="#">Hitman 2</a>
+    </div>
+  </div>
+
+  <div id="dictionary" class="section">
+    <input type="text" id="search" placeholder="Search an app name..." oninput="filterApps()" />
+    <div id="dictionaryResults" class="card"></div>
+  </div>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    const allApps = [
+      { name: "ChatGPT", category: "AI Tools", link: "https://chat.openai.com" },
+      { name: "Gemini", category: "AI Tools", link: "https://gemini.google.com" },
+      { name: "Claude", category: "AI Tools", link: "https://claude.ai" },
+      { name: "Perplexity", category: "AI Tools", link: "https://www.perplexity.ai" },
+      { name: "BBC News", category: "News Apps", link: "https://www.bbc.com/news" },
+      { name: "CNN", category: "News Apps", link: "https://edition.cnn.com" },
+      { name: "Al Jazeera", category: "News Apps", link: "https://www.aljazeera.com" },
+      { name: "Nation", category: "News Apps", link: "https://nation.africa/kenya" },
+      { name: "Moodle", category: "College Apps", link: "https://moodle.org" },
+      { name: "Zoom", category: "College Apps", link: "https://zoom.us" },
+      { name: "Google Meet", category: "College Apps", link: "https://meet.google.com" },
+      { name: "Turnitin", category: "College Apps", link: "https://www.turnitin.com" },
+      { name: "GTA San Andreas", category: "Offline PC Games", link: "#" },
+      { name: "NFS Most Wanted", category: "Offline PC Games", link: "#" },
+      { name: "PES 2013", category: "Offline PC Games", link: "#" },
+      { name: "Hitman 2", category: "Offline PC Games", link: "#" },
+    ];
+
+    function filterApps() {
+      const term = document.getElementById("search").value.toLowerCase();
+      const results = allApps.filter(app => app.name.toLowerCase().includes(term));
+      const output = results.map(app =>
+        `<div style="margin-bottom:10px">
+          <strong>${app.name}</strong> <br/>
+          <span style="font-size:12px;color:lightgray">${app.category}</span><br/>
+          <a href="${app.link}" target="_blank">Visit</a>
+        </div>`
+      ).join("");
+      document.getElementById("dictionaryResults").innerHTML = output || "<p>No results found</p>";
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- ▬▬ EXTRAS OVERLAY (modal style, keeps rain intact+++this is the part with updates of the rainfall animations) ▬▬ -->
+<style>
+/* Overlay wrapper */
+.ewg-overlay{position:fixed;inset:0;
+display:none;justify-content:center;
+align-items:center;
+             z-index:9997;
+			 background:linear-gradient(60deg,white,black,maroon);
+			 backdrop-filter:blur(3px);}
+.ewg-overlay.active{display:flex;}
+/* Modal card */
+.ewg-modal{width:90vw;max-width:520px;height:80vh;
+           background:var(--ewg-grad);color:#fff;border-radius:24px;
+           box-shadow:0 10px 26px rgba(0,0,0,.6);padding:22px;
+           display:flex;flex-direction:column;
+		   gap:14px;
+		   position:relative;
+		   }
+.ewg-modal h3{margin:0;
+text-align:center;
+font-size:24px;
+}
+.ewg-close{position:absolute;
+top:12px;
+right:18px;font-size:28px;
+border:none;
+background:linear-gradient(60deg,black,white);
+color:#fff;cursor:pointer;}
+.ewg-btn{padding:8px 14px;
+border:2px solid maroon;
+border-radius:10px;
+background:var(--ewg-maroon);
+color:#fff;
+font-weight:bolder;
+cursor:pointer;}
+.ewg-inp{width:100%;
+padding:8px;
+border:none;
+border-radius:10px;
+margin-bottom:6px;
+color:black;}
+/* Graph canvas */
+#ewg-g-canvas{flex:1;background:#0003;border-radius:20px;}
+
+/* Circle launcher (same gradient) */
+#ewg-circle-wrap{position:relative;
+width:180px;aspect-ratio:1;
+margin:24px auto 0;
+top:10px;}
+#ewg-circle{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+            font-size:26px;font-weight:bold;cursor:pointer;background:var(--ewg-grad);color:#fff;
+            box-shadow:0 0 14px var(--ewg-maroon);}
+#ewg-circle:hover{transform:scale(1.05);transition:.3s;}
+/* hidden icon bar */
+#ewg-iconbar{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:14px;
+             opacity:0;pointer-events:none;transition:opacity .45s,transform .45s;}
+#ewg-circle-wrap.show #ewg-iconbar{opacity:1;pointer-events:auto;transform:translate(-50%,-170%);}
+.ewg-icon{width:70px;height:70px;border-radius:16px;background:var(--ewg-grad);
+          display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+          box-shadow:0 4px 12px rgba(0,0,0,.45);}
+.ewg-icon span{font-size:30px;line-height:1;} .ewg-icon small{font-size:11px;}
+/* cloud curtain */
+@keyframes ewg-cloud{0%{opacity:0;}20%{opacity:.9;}80%{opacity:.9;}100%{opacity:0;}}
+.ewg-cloud{position:fixed;inset:0;background:rgba(255,255,255,.9);animation:ewg-cloud .8s forwards;z-index:9996;}
+</style>
+
+<!-- Circle launcher -->
+<div id="ewg-circle-wrap">
+  <div id="ewg-circle">EXTRAS</div>
+  <div id="ewg-iconbar">
+    <div class="ewg-icon" data-panel="calc"><span>🧮</span><small>Calc</small></div>
+    <div class="ewg-icon" data-panel="dict"><span>📚</span><small>Dict</small></div>
+    <div class="ewg-icon" data-panel="graph"><span>📈</span><small>Graph</small></div>
+  </div>
+</div>
+
+<!-- Overlays -->
+<div id="ewg-ov-calc"  class="ewg-overlay"><div class="ewg-modal">
+  <button class="ewg-close" onclick="ewgClose()">✖</button>
+  <h3>Calculator</h3>
+  <input id="ewg-c-in" class="ewg-inp" placeholder="expression">
+  <div id="ewg-c-out" style="min-height:24px;"></div>
+  <div id="ewg-c-pad" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;"></div>
+  <button class="ewg-btn" onclick="ewgCclear()">Clear</button>
+</div></div>
+
+<div id="ewg-ov-dict" class="ewg-overlay"><div class="ewg-modal">
+  <button class="ewg-close" onclick="ewgClose()">✖</button>
+  <h3>Dictionary</h3>
+  <input id="ewg-d-in" class="ewg-inp" placeholder="type word – Enter">
+  <div id="ewg-d-out" style="flex:1;overflow:auto;background:#0003;border-radius:12px;padding:8px;"></div>
+  <button class="ewg-btn" onclick="ewgDclear()">Clear</button>
+</div></div>
+
+<div id="ewg-ov-graph" class="ewg-overlay"><div class="ewg-modal" style="gap:10px;">
+  <button class="ewg-close" onclick="ewgClose()">✖</button>
+  <h3>Graph Plotter</h3>
+  <select id="ewg-g-type" class="ewg-inp">
+    <option value=\"line\">Line</option><option value=\"bar\">Bar</option><option value=\"circle\">Circle</option>
+  </select>
+  <textarea id=\"ewg-g-data\" class=\"ewg-inp\" rows=\"3\" placeholder=\"comma nums or x,y lines (≤20)\"></textarea>
+  <div style=\"display:flex;gap:8px;\">
+    <button class=\"ewg-btn\" onclick=\"ewgPlot()\">Plot</button>
+    <button class=\"ewg-btn\" onclick=\"ewgGclear()\">Clear</button>
+    <button class=\"ewg-btn\" id=\"ewg-save\" style=\"display:none;\" onclick=\"ewgSave()\">Save PNG</button>
+  </div>
+  <canvas id=\"ewg-g-canvas\"></canvas>
+  <button class=\"ewg-btn\" id=\"ewg-rec\">Record Screen</button>
+</div></div>
+
+<script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>
+
+
+<!-- ⬇️  START PATCH  ⬇️ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+/* ░░░ 1. CLOSE overlay ░░░ */
+function ewgClose () {
+  document.querySelectorAll('.ewg-overlay').forEach(o => o.classList.remove('active'));
+  /* also clear Google iframe if present */
+  const frame = document.getElementById('ewg-gframe');
+  if (frame) frame.remove();
+}
+
+/* ░░░ 2. HUB top-nav “Dictionary” button opens overlay ░░░ */
+function showSection (id) {
+  if (id === 'dictionary') {
+    /* treat like extras overlay */
+    document.getElementById('ewg-ov-dict').classList.add('active');
+    return;
+  }
+  document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ░░░ 3. Icon bar logic unchanged ░░░ */
+document.getElementById('ewg-circle').onclick = () =>
+  document.getElementById('ewg-circle-wrap').classList.toggle('show');
+document.querySelectorAll('.ewg-icon').forEach(i => i.onclick = () => {
+  document.getElementById('ewg-circle-wrap').classList.remove('show');
+  const cloud = document.createElement('div');  cloud.className = 'ewg-cloud';
+  document.body.appendChild(cloud);  setTimeout(() => cloud.remove(), 800);
+  ['calc', 'dict', 'graph'].forEach(id => document.getElementById('ewg-ov-' + id).classList.remove('active'));
+  document.getElementById('ewg-ov-' + i.dataset.panel).classList.add('active');
+});
+
+/* ░░░ 4. CALCULATOR ░░░ */
+const pad = '7 8 9 / 4 5 6 * 1 2 3 - 0 . + ( ) √ x² x³ ='.split(' ');
+const padBox = document.getElementById('ewg-c-pad');
+const cin = document.getElementById('ewg-c-in');
+const cout = document.getElementById('ewg-c-out');
+pad.forEach(k => {
+  const btn = Object.assign(document.createElement('button'), { className: 'ewg-btn', textContent: k });
+  btn.onclick = () => calcKey(k);  padBox.appendChild(btn);
+});
+function calcKey (k) {
+  if (k === '=') return evalIn();
+  cin.value += (k === '√') ? 'sqrt(' : (k === 'x²') ? '**2' : (k === 'x³') ? '**3' : k;
+  cin.focus();
+}
+function evalIn () {
+  try {
+    const expr = cin.value.replace(/\^/g, '**').replace(/sqrt/g, 'Math.sqrt');
+    cout.textContent = '= ' + Function('const { sin, cos, tan, sqrt } = Math; return ' + expr)();
+  } catch { cout.textContent = 'error'; }
+}
+function ewgCclear () { cin.value = ''; cout.textContent = ''; }
+
+/* ░░░ 5. OFFLINE + GOOGLE DICTIONARY ░░░ */
+const DICT = { ability: 'power to do', above: 'higher', about: 'concerning' };       /* extend to 9k */
+const din  = document.getElementById('ewg-d-in');
+const dout = document.getElementById('ewg-d-out');
+
+din.onkeydown = e => { if (e.key === 'Enter') searchDict(); };
+function searchDict () {
+  const w = din.value.trim().toLowerCase();
+  dout.innerHTML = '';
+  const frame = document.getElementById('ewg-gframe');  frame && frame.remove();
+
+  if (!w) return;
+  if (DICT[w]) {
+    dout.innerHTML = `<b>${w}</b>: ${DICT[w]}`;
+  } else {
+    dout.innerHTML = `<i>${w}</i> not in offline list. Loading Google…`;
+    const iframe = Object.assign(document.createElement('iframe'), {
+      id: 'ewg-gframe',
+      src: 'https://www.google.com/search?q=' + encodeURIComponent(w + ' definition'),
+      style: 'width:100%;height:100%;border:0;margin-top:8px;border-radius:12px;'
+    });
+    iframe.onerror = () => {
+      iframe.remove();
+      dout.innerHTML += `<br><a href="https://www.google.com/search?q=${encodeURIComponent(w+' definition')}" target="_blank">Open in Google</a>`;
+    };
+    dout.appendChild(iframe);
+  }
+}
+function ewgDclear () { din.value = ''; dout.textContent = ''; const f = document.getElementById('ewg-gframe'); f && f.remove(); }
+
+/* ░░░ 6. GRAPH – auto input grid ░░░ */
+const gArea = document.getElementById('ewg-g-data');
+const gTypeSel = document.getElementById('ewg-g-type');
+const gCanvas  = document.getElementById('ewg-g-canvas');
+
+rebuildGrid();
+gTypeSel.onchange = rebuildGrid;
+
+function rebuildGrid () {
+  const type = gTypeSel.value;
+  if (type === 'circle') {
+    gArea.value = '0 0 50';  // h k r example
+    gArea.placeholder = 'h k r  (e.g., 0 0 50)';
+  } else {
+    let rows = '';
+    for (let i = 0; i < 20; i++) rows += '\n';
+    gArea.value = rows.trim();
+    gArea.placeholder = 'x y  , one pair per line (up to 20)';
+  }
+}
+
+let chart;
+function ewgPlot () {
+  const type = gTypeSel.value;
+  const raw  = gArea.value.trim();
+  if (!raw) return alert('Enter data first');
+
+  chart && chart.destroy();
+  const ctx = gCanvas.getContext('2d');
+
+  if (type === 'circle') {
+    const [h, k, r] = raw.split(/[,\\s]+/).map(Number);
+    if (isNaN(h) || isNaN(k) || isNaN(r)) return alert('Enter h k r numbers');
+    const pts = Array.from({ length: 361 }, (_, a) => {
+      const rad = a * Math.PI / 180;
+      return { x: h + r * Math.cos(rad), y: k + r * Math.sin(rad) };
+    });
+    chart = new Chart(ctx, {
+      type: 'scatter',
+      data: { datasets: [{ data: pts, showLine: true, borderColor: 'maroon' }] },
+      options: { scales: { x: { type: 'linear' }, y: { type: 'linear' } }, plugins: { legend: { display: false } } }
+    });
+  } else {
+    const rows = raw.split(/\\n+/).slice(0, 20).map(r => r.split(/[,\\s]+/).map(Number));
+    const labels = [], data = [];
+    rows.forEach((r, i) => {
+      if (r.length > 1) { labels.push(r[0]); data.push(r[1]); }
+      else if (!isNaN(r[0])) { labels.push(i + 1); data.push(r[0]); }
+    });
+    const colors = data.map((_, i) => `hsl(${i * 360 / data.length}, 80%, 55%)`);
+    chart = new Chart(ctx, {
+      type: type === 'bar' ? 'bar' : 'line',
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderColor: 'maroon', fill: false }] },
+      options: { plugins: { legend: { display: false } } }
+    });
+  }
+  document.getElementById('ewg-save').style.display = 'inline-block';
+}
+function ewgGclear () { gArea.value = ''; chart && chart.destroy(); document.getElementById('ewg-save').style.display = 'none'; }
+function ewgSave () { const a = document.createElement('a'); a.download = 'chart.png'; a.href = gCanvas.toDataURL(); a.click(); }
+
+/* ░░░ 7. SCREEN RECORDER ░░░ */
+let rec, recChunks = [];
+document.getElementById('ewg-rec').onclick = async function () {
+  if (rec && rec.state === 'recording') {
+    rec.stop();  this.textContent = 'Record Screen';  return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+    rec = new MediaRecorder(stream);
+    rec.ondataavailable = e => recChunks.push(e.data);
+    rec.onstop = () => {
+      const blob = new Blob(recChunks, { type: 'video/webm' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = 'recording.webm'; a.click();
+      recChunks = [];
+    };
+    rec.start();
+    this.textContent = 'Stop';
+  } catch { alert('Screen-capture permission denied.'); }
+};
+</script>
+<!-- ⬆️  END PATCH  ⬆️ -->
+
+
+
+
+
+
+
+
+<!-- 🌧️  Rain-and-Flash overlay (copy-paste, no collisions) -->
+<style>
+  /* --------- Rain & Flash effect (Sweety-safe) ------- */
+  #rain-flash-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;         /* don’t steal clicks */
+    overflow: hidden;
+    z-index: 999999;              /* sits on top, tweak if needed */
+  }
+  .rfe-raindrop {
+    position: absolute;
+    bottom: 100%;
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(transparent, rgba(255,255,255,.6));
+    animation: rfe-fall var(--spd,0.9s) linear infinite;
+    opacity: var(--opa,.4);
+  }
+  @keyframes rfe-fall { to { transform: translateY(110vh); } }
+
+  .rfe-flash {
+    position: fixed;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999998;
+    animation: rfe-flash 0.35s ease-in-out forwards;
+  }
+  @keyframes rfe-flash {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+</style>
+
+<script>
+/* ---------- Rain-Flash Effect: zero-collision IIFE ----------- */
+(() => {
+  if (window.RainFlashEffect) return;            // avoid duplicates
+  function RainFlashEffect(opts = {}) {
+    /* configurable */
+    const dropCount = opts.drops || 160;
+    const flashGap  = opts.flashEvery || 6000;   // ms
+
+    /* build overlay container if missing */
+    const overlay = document.getElementById('rain-flash-overlay') ||
+      (() => { const d = document.createElement('div');
+               d.id = 'rain-flash-overlay';
+               document.body.appendChild(d); return d; })();
+
+    /* helper: spawn one raindrop */
+    function spawnDrop() {
+      const el = document.createElement('div');
+      el.className = 'rfe-raindrop';
+      el.style.left  = Math.random() * 100 + '%';
+      el.style.setProperty('--spd', (0.6 + Math.random() * 0.8) + 's');
+      el.style.setProperty('--opa', (0.2 + Math.random() * 0.6));
+      overlay.appendChild(el);
+      setTimeout(() => overlay.removeChild(el), 2000);
+    }
+
+    /* seed initial shower */
+    for (let i = 0; i < dropCount; i++)
+      setTimeout(spawnDrop, Math.random() * 2000);
+
+    /* continuous drizzle */
+    setInterval(spawnDrop, 60);
+
+    /* lightning flash */
+    function lightning() {
+      const f = document.createElement('div');
+      f.className = 'rfe-flash';
+      document.body.appendChild(f);
+      f.addEventListener('animationend', () => f.remove());
+    }
+    setInterval(() => lightning(), flashGap + Math.random() * flashGap);
+  }
+
+  window.RainFlashEffect = RainFlashEffect;     // minimal namespace
+  document.readyState !== 'loading'
+    ? new RainFlashEffect()
+    : addEventListener('DOMContentLoaded', () => new RainFlashEffect());
+
+})();
+</script>
+<!-- 🌧️ /Rain-and-Flash overlay -->
+
+
+<!-- 📅🕒🔋 Ribbon: Time, Date & Battery Info -->
+<style>
+  #info-ribbon {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #111;
+    color: #fff;
+    font-family: sans-serif;
+    font-size: 14px;
+    padding: 6px 12px;
+    z-index: 999999;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    user-select: none;
+  }
+  #info-ribbon span {
+    white-space: nowrap;
+  }
+  body { padding-top: 34px; } /* prevents content from hiding under the ribbon */
+</style>
+
+<div id="info-ribbon">
+  <span id="ir-date">📅 Date</span>
+  <span id="ir-time">🕒 Time</span>
+  <span id="ir-battery">🔋 Battery</span>
+</div>
+
+<script>
+(function(){
+  const d = document.getElementById("ir-date");
+  const t = document.getElementById("ir-time");
+  const b = document.getElementById("ir-battery");
+
+  function updateTime() {
+    const now = new Date();
+    d.textContent = "📅 " + now.toLocaleDateString();
+    t.textContent = "🕒 " + now.toLocaleTimeString();
+  }
+
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  if (navigator.getBattery) {
+    navigator.getBattery().then(batt => {
+      function updateBattery() {
+        const lvl = Math.round(batt.level * 100) + "%";
+        const charging = batt.charging ? "⚡" : "";
+        b.textContent = "🔋 " + lvl + " " + charging;
+      }
+      updateBattery();
+      batt.addEventListener("levelchange", updateBattery);
+      batt.addEventListener("chargingchange", updateBattery);
+    });
+  } else {
+    b.textContent = "🔋 N/A";
+  }
+})();
+</script>
+<!-- /Ribbon -->
+
+
+
+
+<!-- 🎓 Student Classics Launcher with Image Fallback -->
+<style>
+  #sc-container {
+  border-radius:10px;
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+	background:black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 999999;
+    font-family: sans-serif;
+  }
+
+  #sc-toggle {
+    background: #0a5cff;
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    padding: 8px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  }
+
+  #sc-links {
+    display: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    opacity: 0;
+  }
+
+  #sc-container.sc-show #sc-links {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .sc-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #111;
+    transition: transform 0.25s ease;
+  }
+
+  .sc-link:hover {
+    transform: translateY(-6px);
+  }
+
+  .sc-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    position: relative;
+    font-weight: bold;
+    font-size: 18px;
+    color: #0a5cff;
+  }
+
+  .sc-icon img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .sc-icon .fallback {
+    position: absolute;
+    display: none;
+  }
+
+  .sc-label {
+    margin-top: 5px;
+    font-size: 12px;
+    color: white;
+    text-align: center;
+    max-width: 60px;
+  }
+
+  .sc-toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #111;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 20px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999998;
+    animation: sc-toast 2.5s forwards;
+    font-size: 14px;
+  }
+
+  @keyframes sc-toast {
+    0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    10%, 85% { opacity: 0.92; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  }
+</style>
+
+<div id="sc-container">
+  <button id="sc-toggle">Student Classics</button>
+  <div id="sc-links">
+    <!-- Links with Icons and Fallback Letters -->
+    <a href="https://www.khanacademy.org" class="sc-link" data-app="Khan Academy">
+      <div class="sc-icon">
+        <img src="https://cdn.simpleicons.org/khanacademy" alt="K" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="fallback">K</span>
+      </div>
+      <div class="sc-label">Khan Academy</div>
+    </a>
+    <a href="https://www.commonapp.org" class="sc-link" data-app="Common App">
+      <div class="sc-icon">
+        <img src="https://cdn.simpleicons.org/commonworkflowlanguage" alt="C" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="fallback">C</span>
+      </div>
+      <div class="sc-label">Common App</div>
+    </a>
+    <a href="https://bluebook.collegeboard.org" class="sc-link" data-app="Bluebook">
+      <div class="sc-icon">
+        <img src="https://cdn.simpleicons.org/bookstack" alt="B" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="fallback">B</span>
+      </div>
+      <div class="sc-label">Bluebook</div>
+    </a>
+    <a href="https://www.collegeboard.org" class="sc-link" data-app="College Board">
+      <div class="sc-icon">
+        <img src="https://cdn.simpleicons.org/academia" alt="C" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="fallback">C</span>
+      </div>
+      <div class="sc-label">College Board</div>
+    </a>
+    <a href="https://chat.openai.com" class="sc-link" data-app="ChatGPT">
+      <div class="sc-icon">
+        <img src="https://cdn.simpleicons.org/openai" alt="G" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="fallback">G</span>
+      </div>
+      <div class="sc-label">ChatGPT</div>
+    </a>
+    <a href="https://dictionary.cambridge.org" class="sc-link" data-app="Dictionary">
+      <div class="sc-icon">
+        <img src="https://cdn.simpleicons.org/book" alt="D" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="fallback">D</span>
+      </div>
+      <div class="sc-label">Dictionary</div>
+    </a>
+    <a href="https://www.deepseek.com" class="sc-link" data-app="DeepSeek">
+      <div class="sc-icon">
+        <img src="https://cdn.simpleicons.org/sourcegraph" alt="S" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="fallback">S</span>
+      </div>
+      <div class="sc-label">DeepSeek</div>
+    </a>
+    <a href="https://zoom.us" class="sc-link" data-app="Zoom">
+      <div class="sc-icon">
+        <img src="https://cdn.simpleicons.org/zoom" alt="Z" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="fallback">Z</span>
+      </div>
+      <div class="sc-label">Zoom</div>
+    </a>
+    <a href="https://www.linkedin.com" class="sc-link" data-app="LinkedIn">
+      <div class="sc-icon">
+        <img src="https://cdn.simpleicons.org/linkedin" alt="L" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="fallback">L</span>
+      </div>
+      <div class="sc-label">LinkedIn</div>
+    </a>
+  </div>
+</div>
+
+<script>
+(() => {
+  if (window.StudentClassicsV4) return;
+  window.StudentClassicsV4 = true;
+
+  const container = document.getElementById('sc-container');
+  const toggleBtn = document.getElementById('sc-toggle');
+  const linksBox = document.getElementById('sc-links');
+
+  toggleBtn.addEventListener('click', () => {
+    container.classList.toggle('sc-show');
+  });
+
+  linksBox.querySelectorAll('.sc-link').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const appName = link.dataset.app || 'this app';
+
+      const toast = document.createElement('div');
+      toast.className = 'sc-toast';
+      toast.textContent = 'Welcome to ' + appName;
+      document.body.appendChild(toast);
+      toast.addEventListener('animationend', () => toast.remove());
+
+      setTimeout(() => {
+        window.open(link.href, '_blank', 'noopener,noreferrer');
+      }, 1000);
+    });
+  });
+})();
+</script>
+
+
+
+
+
+
+
+
